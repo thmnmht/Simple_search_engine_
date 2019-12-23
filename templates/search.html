@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+
+    <link type="text/css" rel="stylesheet" href="../static/search.css"/>
+    <link type="text/css" rel="stylesheet" href="../static/hello.css"/>
+    <link type="text/css" rel="stylesheet" href="../static/normolize.css"/>
+    <Script src="../static/jquery.js"></Script>
+
+    <title>News</title>
+
+</head>
+
+<body>
+
+<div id="search_back">
+    <form class="form-wrapper cf" action="/search/1" method="post" dir="rtl" align="right">
+        <input type="text" placeholder="عبارت مورد نظر خود را وارد کنید" required name="query">
+        <select name="sort_options">
+            <option value="accidental">تصادفی</option>
+            <option value="connection">میزان ارتباط</option>
+            <option value="time">زمان انتشار</option>
+        </select>
+        <button type="submit">جست‌و‌جو</button>
+    </form>
+</div>
+
+
+{% for i in range(0, len)%}
+<div class="blog-card">
+    <div class="summery-picture">
+        <div class="meta">
+            <img class="photo" src={{listing[i][6]}} height="150px" width="250px"/>
+        </div>
+        <div class="description">
+            <h1>{{listing[i][1]}}</h1>
+            <div>
+                <p class="t_u" id="tu1">منبع : {{ listing[i][2] }}</p>
+                <p class="t_u" id="tu2">تاریخ : {{ listing[i][0] }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="news" align="right" dir="rtl">
+        {%for word in highlights[listing[i][7]]%}
+        {%if word.is_highlight%}
+        <mark class="inline">{{word.word}}</mark>
+        {%else%}
+        <p class="inline">{{word.word}}</p>
+        {%endif%}
+        {%endfor%}
+
+        <div class="continue"><a class="continue" href="/result/{{listing[i][7]}}">ادامه</a></div>
+    </div>
+
+
+</div>
+{%endfor%}
+
+
+{%if page == 1%}
+<span class="page-item disabled"><a class="page-link">صفحه‌ی قبل</a></span>
+{%else%}
+<span class="page-item"><a class="page-link" href="/search/{{page-1}}">صفحه‌ی قبل</a></span>
+{%endif%}
+
+<span class="page-num">صفحه‌ی {{page}} از {{total_pages}}</span>
+{%if page == total_pages%}
+<span class="page-item"><a class="page-link">صفحه‌ی بعد</a></span>
+{%else%}
+<span class="page-item"><a class="page-link" href="/search/{{page + 1}}">صفحه‌ی بعد</a></span>
+{%endif%}
+
+</body>
+</html>
+

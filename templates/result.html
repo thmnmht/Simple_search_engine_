@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <link type="text/css" rel="stylesheet" href="../static/result.css"/>
+    <link type="text/css" rel="stylesheet" href="../static/hello.css"/>
+    <link type="text/css" rel="stylesheet" href="../static/normolize.css"/>
+    <Script src="../static/jquery.js"></Script>
+
+    <title>News</title>
+
+</head>
+
+<body>
+
+<div id="search_back">
+    <form class="form-wrapper cf" action="/search/1" method="post" dir="rtl" align="right">
+        <input type="text" placeholder="عبارت مورد نظر خود را وارد کنید" required name="query">
+        <select name="sort_options" >
+            <option value="accidental">تصادفی</option>
+            <option value="connection">میزان ارتباط</option>
+            <option value="time">زمان انتشار</option>
+        </select>
+        <button type="submit">جست‌و‌جو</button>
+    </form>
+</div>
+
+
+<div class="blog-card">
+    <div class="summery-picture">
+        <div class="meta">
+            <img class="photo" src={{listing[6]}} height="150px" width="250px"/>
+        </div>
+        <div class="description">
+            <h1>{{listing[1]}}</h1>
+            <h2>{{ listing[3] }}</h2>
+            <div >
+            <p class="t_u" id="tu1">منبع :   {{ listing[2] }}</p>
+            <p class="t_u" id="tu2">تاریخ :   {{ listing[0] }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="tags"  align="center" dir="rtl">
+            <span>{{ listing[4] | safe }} </span>
+    </div>
+    <div class="news" align="right" dir="rtl">
+        {{ listing[5] | safe }}
+    </div>
+</div>
+
+
+
+</body>
+</html>
+

@@ -7,6 +7,7 @@ from Index import Index
 from Highlight import Highlight
 import pickle
 import unicodedata as ud
+import copy
 
 # from hazm import *
 
@@ -294,7 +295,8 @@ def intersect(terms, prev_result):
         print("terms[0]")
         print(terms[0])
         if terms[0] in prev_result:
-            result_index = prev_result[terms[0]].index_dic
+            # :)))))))))))
+            result_index = copy.deepcopy(prev_result[terms[0]].index_dic)
             terms.pop(0)
             print("terms after pop")
             print(terms)
@@ -303,14 +305,15 @@ def intersect(terms, prev_result):
                     result_did = result_index.keys() & prev_result[terms[0]].index_dic.keys()
                     print("result_did")
                     print(result_did)
-                    for did in result_did:
-                        result_index[did] += prev_result[terms[0]].index_dic[did]
 
-                    # remove doc ids which dont contain all of the words in expression
-                    t = result_index.copy()
-                    for d in t.keys():
-                        if d not in result_did:
-                            result_index.pop(d)
+                    # remove doc ids which don't contain all of the words in expression
+                    temp = result_index.copy()
+                    for did in temp.keys():
+                        if did not in result_did:
+                            result_index.pop(did)
+
+                        else:
+                            result_index[did] += prev_result[terms[0]].index_dic[did]
 
                     print("terms")
                     print(terms)

@@ -92,6 +92,7 @@ def arToPersianChar(userInput):
         'أ': 'ا',
         'ؤ': 'و',
         'ء': 'ی',
+        #eerab
         '\u064B': '',  # FATHATAN
         '\u064C': '',  # DAMMATAN
         '\u064D': '',  # KASRATAN
@@ -99,7 +100,81 @@ def arToPersianChar(userInput):
         '\u064F': '',  # DAMMA
         '\u0650': '',  # KASRA
         '\u0651': '',  # SHADDA
-        '\u0652': ''  # SUKUN
+        '\u0652': '',  # SUKUN
+        #halp space
+        '\u200c': '',  #half space
+        '\u1680': '',  #OGHAM SPACE
+        '\u180E': '',  #MONGOLIAN VOWEL SEPARATOR
+        '\u2006': '',  #SIX-PER-EM SPACE
+        '\u2008': '',  #PUNCTUATION SPACE
+        '\u2009': '',  #THIN SPACE
+        '\u200A': '',  #HAIR SPACE
+        '\u200B': '',  #ZERO WIDTH SPACE
+        '\u202F': '',  #NARROW NO-BREAK SPACE
+        '\u205F': '',  #MEDIUM MATHEMATICAL SPACE
+        '\uFEFF': '',  #ZERO WIDTH NO-BREAK SPACE
+        #spaces
+        '\u00A0': '\u0020', #nobreak space
+        '\u2000': '\u0020', #EN QUAD
+        '\u2001': '\u0020', #EM QUAD
+        '\u2002': '\u0020', #EN SPACE (nut)
+        '\u2003': '\u0020', #EM SPACE (mutton)
+        '\u2004': '\u0020', #THREE-PER-EM SPACE (thick space)
+        '\u2005': '\u0020', #FOUR-PER-EM SPACE (mid space)
+        '\u2007': '\u0020', #FIGURE SPACE
+        '\u3000': '\u0020', #IDEOGRAPHIC SPACE
+
+        #emoji
+        '\uF600': '',  # grinning face
+        '\uF603': '',  # grinning face with big eyes
+        '\uF604': '',  # grinning face with smiling eyes
+        '\uF601': '',  # beaming face with smiling eyes
+        '\uF605': '',  # grinning face with sweat
+        '\uF923': '',  # rolling on the floor laughing
+        '\uF602': '',  # face with tears of joy
+        '\uF642': '',  # slightly smiling face
+        '\uF643': '',  # upside-down face
+        '\uF609': '',  # winking face
+        '\uF60A': '',  # smiling face with smiling eyes
+        '\uF607': '',  # smiling face with halo
+        '\uF970': '',  # smiling face with 3 hearts
+        '\uF60D': '',  # smiling face with heart-eyes
+        '\uF929': '',  # star-struck
+        '\uF618': '',  # face blowing a kiss
+        '\uF617': '',  # kissing face
+        '\uF61A': '',  # kissing face with closed eyes
+        '\uF619': '',  # kissing face with smiling eyes
+        '\uF60B': '',  # face savoring food
+        '\uF61B': '',  # face with tongue
+        '\uF61C': '',  # winking face with tongue
+        '\uF92A': '',  # zany face
+        '\uF61D': '',  # squinting face with tongue
+        '\uF911': '',  # money-mouth face
+        '\uF917': '',  # hugging face
+        '\uF92D': '',  # with hand over mouth
+        '\uF92B': '',  # shushing face
+        '\uF914': '',  # thinking face
+        '\uF910': '',  # zipper-mouth face
+        '\uF928': '',  # face with raised eyebrow
+        '\uF610': '',  # neutral face
+        '\uF611': '',  # expressionless face
+        '\uF636': '',  # face without mouth
+        '\uF60F': '',  # smirking face
+        '\uF612': '',  # unamused face
+        '\uF644': '',  # face with rolling eyes
+        '\uF62C': '',  # grimacing face
+        '\uF925': '',  # lying face
+        '\uF60C': '',  # relieved face
+        '\uF614': '',  # pensive face
+        '\uF62A': '',  # sleepy face
+        '\uF924': '',  # drooling face
+        '\uF634': '',  # sleeping face
+        '\uF637': '',  #face with medical mask
+        '\uF912': '',  # face with thermometer
+        '\uF915': '',  #face with head-bandage
+        '\uF922': '',  # nauseated face
+
+
     }
     return multiple_replace(dic, userInput)
 
@@ -134,8 +209,7 @@ def steaming(splited):
         'ید',
         'یم',
         'گر',
-        'گری',
-        u"\u0020",
+        'گری'
 
     ]
 

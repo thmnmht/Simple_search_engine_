@@ -14,6 +14,11 @@ import copy
 app = Flask(__name__)
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
+import sys, os
+def getScriptPath():
+    return os.path.dirname(os.path.realpath(sys.argv[0]))
+os.chdir(getScriptPath())
+
 loc = 'IR.xlsx'
 
 text_maker = html2text.HTML2Text()
@@ -643,6 +648,7 @@ def search(page_num):
         sort = request.form['sort_options']
         print('sort : %s' % sort)
 
+
         # query = ''.join(c for c in query if not ud.category(c).startswith('P'))
 
         normolized_query = clean_all(query)
@@ -665,7 +671,7 @@ def search(page_num):
         page_len = last_page_len
 
     resp = make_response(
-        render_template('search.html', page=page_num, listing=page_result(loc, highlights, page_num, 10),
+        render_template('search.html', prequery=query ,page=page_num, listing=page_result(loc, highlights, page_num, 10),
                         total_pages=total_page_num, highlights=highlights,
                         len=page_len))
 

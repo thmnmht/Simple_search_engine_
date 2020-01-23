@@ -8,6 +8,7 @@ from Highlight import Highlight
 import pickle
 import unicodedata as ud
 import copy
+from parsivar import FindStems
 
 # from hazm import *
 
@@ -178,17 +179,17 @@ def arToPersianChar(userInput):
         '\u0651': '',  # SHADDA
         '\u0652': '',  # SUKUN
         #halp space
-        '\u200c': '',  #half space
-        '\u1680': '',  #OGHAM SPACE
-        '\u180E': '',  #MONGOLIAN VOWEL SEPARATOR
-        '\u2006': '',  #SIX-PER-EM SPACE
-        '\u2008': '',  #PUNCTUATION SPACE
-        '\u2009': '',  #THIN SPACE
-        '\u200A': '',  #HAIR SPACE
-        '\u200B': '',  #ZERO WIDTH SPACE
-        '\u202F': '',  #NARROW NO-BREAK SPACE
-        '\u205F': '',  #MEDIUM MATHEMATICAL SPACE
-        '\uFEFF': '',  #ZERO WIDTH NO-BREAK SPACE
+        # '\u200c': '',  #half space
+        '\u1680': '\u200c',  #OGHAM SPACE
+        '\u180E': '\u200c',  #MONGOLIAN VOWEL SEPARATOR
+        '\u2006': '\u200c',  #SIX-PER-EM SPACE
+        '\u2008': '\u200c',  #PUNCTUATION SPACE
+        '\u2009': '\u200c',  #THIN SPACE
+        '\u200A': '\u200c',  #HAIR SPACE
+        '\u200B': '\u200c',  #ZERO WIDTH SPACE
+        '\u202F': '\u200c',  #NARROW NO-BREAK SPACE
+        '\u205F': '\u200c',  #MEDIUM MATHEMATICAL SPACE
+        '\uFEFF': '\u200c',  #ZERO WIDTH NO-BREAK SPACE
         #spaces
         '\u00A0': '\u0020', #nobreak space
         '\u2000': '\u0020', #EN QUAD
@@ -324,10 +325,18 @@ except (OSError, IOError) as e:
         normolized_news = clean_all(news)
 
         splitednews = normolized_news.split()
-        docs_dic[j] = splitednews
+
+        docs_dic[j] = splitednews.copy()
+
+        my_stemmer = FindStems()
+        for i in range(len(splitednews)):
+            splitednews[i] = my_stemmer.convert_to_stem(splitednews[i]).split('&')[0]
+        # print(splitednews)
+
+
         # print(normolized_news)
 
-        splited = splitednews.copy()
+        # splited = splitednews.copy()
 
         # steammed = steaming(splited)
         # steammed_splitted = steammed.split()
@@ -654,7 +663,15 @@ def search(page_num):
         #         rtp_query += " "
         # print(rtp_query)
 
-        expression, normalWords, notVocabs = query_processing(normolized_query)
+        print(normolized_query)
+        splited_query = normolized_query.split()
+        my_stemmer = FindStems()
+        result = ""
+        for i in range(len(splited_query)):
+            result += my_stemmer.convert_to_stem(splited_query[i]).split('&')[0] + " "
+        print(result)
+
+        expression, normalWords, notVocabs = query_processing(result)
         result, highlights = query_result(expression, normalWords, notVocabs)
         length = len(result)
         total_page_num = int(length / 10) + 1

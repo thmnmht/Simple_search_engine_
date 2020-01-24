@@ -14,6 +14,10 @@ from parsivar import Normalizer
 
 import datetime
 
+import sys, os
+from collections import Counter
+import numpy as np
+import math
 # from hazm import *
 
 app = Flask(__name__)
@@ -35,6 +39,9 @@ text_maker.strong_mark = " "
 
 wb = xlrd.open_workbook(loc)
 sheet = wb.sheet_by_index(0)
+N = 200
+K=10
+# N=sheet.nrows
 
 stop_words = ["در", "از", "این", "برای", "که", "و", "را", "با", "به", "است", "ها", "تا", "های", "کرد", "شد",
               "شده"]
@@ -318,18 +325,37 @@ def st(pat, splited):
                 steammed += token + ' '
     return steammed
 
+def doc_freq(word , DF):
+    c = 0
+    try:
+        c = DF[word]
+    except:
+        pass
+    return c
+
 
 try:
     pickle_in1 = open("dict.pickle", "rb")
     print("loading inverted index")
     terms_dic = pickle.load(pickle_in1)
     pickle_in1.close()
+
     pickle_in2 = open("doc.pickle", "rb")
     docs_dic = pickle.load(pickle_in2)
     pickle_in2.close()
 
+    print("loading tf_idf matrix")
+    pickle_in3 = open("tfidf.pickle", "rb")
+    Dtf_idf = pickle.load(pickle_in3)
+    pickle_in3.close()
+
+    pickle_in4 = open("df.pickle", "rb")
+    DFf = pickle.load(pickle_in4)
+    pickle_in4.close()
+
 except (OSError, IOError) as e:
-    for j in range(1, sheet.nrows):
+
+    for j in range(1, N):
         empty_docs_dic[j] = []
         news = sheet.cell_value(j, 5)
         news = text_maker.handle(news)
@@ -367,6 +393,48 @@ except (OSError, IOError) as e:
                 terms_dic[term] = Index()
             terms_dic[term].add(j, i)
             i += 1
+
+
+    DFf={}
+    total_vocab_size=len(terms_dic)
+    for term in terms_dic :
+        DFf[term]= len(terms_dic[term].index_dic)
+
+
+
+    doc = 0
+
+    tf_idf = {}
+
+    for i in range(1, N):
+
+        tokens = docs_dic[i]
+
+
+        counter = Counter(tokens)
+        print(counter)
+        words_count = len(tokens)
+        print(words_count)
+
+        print("this the document number")
+        print(i)
+        if words_count != 0 :
+            for token in terms_dic:
+                tf = counter[token] / words_count
+                df = doc_freq(token , DFf)
+                #we can now use diffrent formula for document term weight
+                idf = np.log((N + 1) / (df + 1))
+                tf_idf[doc, token] = tf * idf
+        doc += 1
+
+    Dtf_idf = np.zeros((N, total_vocab_size))
+    for i in tf_idf:
+        try:
+            ind = terms_dic.index(i[1])
+            Dtf_idf[i[0]][ind] = tf_idf[i]
+        except:
+            pass
+
     pickle_out1 = open("dict.pickle", "wb")
     print("making the inverted index")
     pickle.dump(terms_dic, pickle_out1)
@@ -375,6 +443,14 @@ except (OSError, IOError) as e:
     pickle_out2 = open("doc.pickle", "wb")
     pickle.dump(docs_dic, pickle_out2)
     pickle_out2.close()
+
+    pickle_out3 = open("tfidf.pickle", "wb")
+    pickle.dump(Dtf_idf, pickle_out3)
+    pickle_out3.close()
+
+    pickle_out4 = open("df.pickle", "wb")
+    pickle.dump(DFf, pickle_out4)
+    pickle_out4.close()
 
     d2 = datetime.datetime.today()
     print('Current date and time: ', d2)
@@ -413,6 +489,59 @@ except (OSError, IOError) as e:
 #         print(i, end="")
 #         print(": ", end="")
 #         print((terms_dic[t].index_dic[i]))
+
+def cosine_sim(a, b):
+    aa=np.linalg.norm(a)
+    bb=np.linalg.norm(b)
+    cos_sim = 0
+    if aa != 0 and bb!=0:
+        cos_sim = np.dot(a, b)/(aa*bb)
+    return cos_sim
+
+def gen_vector(tokens):
+    Q = np.zeros((len(terms_dic)))
+
+    counter = Counter(tokens)
+    words_count = len(tokens)
+
+    query_weights = {}
+
+    for token in np.unique(tokens):
+
+        tf = counter[token] / words_count
+        df = doc_freq(token , DFf)
+        idf = math.log((N + 1) / (df + 1))
+
+        try:
+            ind = terms_dic.index(token)
+            Q[ind] = tf * idf
+        except:
+            pass
+    return Q
+
+
+def cosine_similarity(k, query):
+    print("Cosine Similarity")
+    tokens = (str(query))
+
+    print("\nQuery:", query)
+    print("")
+    print(tokens)
+
+    d_cosines = []
+
+    query_vector = gen_vector(tokens)
+
+    for d in Dtf_idf:
+        d_cosines.append(cosine_sim(query_vector, d))
+
+    out = np.array(d_cosines).argsort()[-k:][::-1]
+
+    print(out)
+    return out
+
+
+
 
 
 def page_result(add, highlights, page=1, number=10):
@@ -698,6 +827,30 @@ def search(page_num):
 
         expression, normalWords, notVocabs = query_processing(result)
         result, highlights = query_result(expression, normalWords, notVocabs)
+        print(sort)
+        if sort == "connection":
+            connectionreault= cosine_similarity(K,normolized_query)
+            print("cos res ")
+            print(connectionreault)
+
+            print("actual res ")
+            print(result)
+
+            similarresult=[]
+            # result=sorted(result.items(), key=lambda kv: connectionreault[kv])
+            # TODO inja bayad result to bar hasb connection moratab beshe yeki dige ham inke in natije jadide neshon dade beshe
+            for did in connectionreault:
+                for didr in result:
+                    if did==didr:
+                        similarresult.append(did)
+            print("similarresult")
+            print(similarresult)
+
+            result = sorted(result.items(), key=lambda pair: similarresult.index(pair[0]))
+            print("changed  res ")
+            print(result)
+
+
         length = len(result)
         total_page_num = int(length / 10) + 1
         last_page_len = length % 10

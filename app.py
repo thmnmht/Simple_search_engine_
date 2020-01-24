@@ -817,13 +817,18 @@ def search(page_num):
 
             print("actual res ")
             print(result)
-            # result = sortreault
-            a=0
 
+            similarresult=[]
             # result=sorted(result.items(), key=lambda kv: connectionreault[kv])
             # TODO inja bayad result to bar hasb connection moratab beshe yeki dige ham inke in natije jadide neshon dade beshe
+            for did in connectionreault:
+                for didr in result:
+                    if did==didr:
+                        similarresult.append(did)
+            print("similarresult")
+            print(similarresult)
 
-
+            result = sorted(result.items(), key=lambda pair: similarresult.index(pair[0]))
             print("changed  res ")
             print(result)
 

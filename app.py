@@ -9,15 +9,21 @@ import pickle
 import unicodedata as ud
 import copy
 from parsivar import FindStems
+import sys, os
+from parsivar import Normalizer
+
+import datetime
 
 # from hazm import *
 
 app = Flask(__name__)
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
-import sys, os
+
 def getScriptPath():
     return os.path.dirname(os.path.realpath(sys.argv[0]))
+
+
 os.chdir(getScriptPath())
 
 loc = 'IR.xlsx'
@@ -32,6 +38,9 @@ sheet = wb.sheet_by_index(0)
 
 stop_words = ["در", "از", "این", "برای", "که", "و", "را", "با", "به", "است", "ها", "تا", "های", "کرد", "شد",
               "شده"]
+
+d = datetime.datetime.today()
+print('Current date and time: ', d)
 
 
 def clean_html(raw_html):
@@ -48,12 +57,13 @@ docs_dic = {}
 def clean_sentence(sentence):
     sentence = arToPersianChar(sentence)
     sentence = arToPersianNumb(sentence)
-    sentence=yeksansaz(sentence)
+    sentence = yeksansaz(sentence)
     return sentence
+
 
 def yeksansaz(userInput):
     dic = {
-        #chandshekliha
+        # chandshekliha
         'آيينه': 'آينه',
         'اطاق': 'اتاق',
         'اتمبيل': 'اتومبيل',
@@ -84,7 +94,7 @@ def yeksansaz(userInput):
         'كبّاده': 'كباده',
         'هيئت': 'هيأت',
         'زغال': 'ذغال',
-        #kalamat ekhtesari
+        # kalamat ekhtesari
         'هـ . ش .': 'هجری شمسی',
         'هـ . ق .': 'هجری قمری',
         'ق . م .': 'قبل از میلاد',
@@ -125,6 +135,7 @@ def yeksansaz(userInput):
 
     }
     return multiple_replace(dic, userInput)
+
 
 def arToPersianNumb(number):
     dic = {
@@ -174,7 +185,7 @@ def arToPersianChar(userInput):
         'أ': 'ا',
         'ؤ': 'و',
         'ء': 'ی',
-        #eerab
+        # eerab
         '\u064B': '',  # FATHATAN
         '\u064C': '',  # DAMMATAN
         '\u064D': '',  # KASRATAN
@@ -183,30 +194,30 @@ def arToPersianChar(userInput):
         '\u0650': '',  # KASRA
         '\u0651': '',  # SHADDA
         '\u0652': '',  # SUKUN
-        #halp space
+        # halp space
         # '\u200c': '',  #half space
-        '\u1680': '\u200c',  #OGHAM SPACE
-        '\u180E': '\u200c',  #MONGOLIAN VOWEL SEPARATOR
-        '\u2006': '\u200c',  #SIX-PER-EM SPACE
-        '\u2008': '\u200c',  #PUNCTUATION SPACE
-        '\u2009': '\u200c',  #THIN SPACE
-        '\u200A': '\u200c',  #HAIR SPACE
-        '\u200B': '\u200c',  #ZERO WIDTH SPACE
-        '\u202F': '\u200c',  #NARROW NO-BREAK SPACE
-        '\u205F': '\u200c',  #MEDIUM MATHEMATICAL SPACE
-        '\uFEFF': '\u200c',  #ZERO WIDTH NO-BREAK SPACE
-        #spaces
-        '\u00A0': '\u0020', #nobreak space
-        '\u2000': '\u0020', #EN QUAD
-        '\u2001': '\u0020', #EM QUAD
-        '\u2002': '\u0020', #EN SPACE (nut)
-        '\u2003': '\u0020', #EM SPACE (mutton)
-        '\u2004': '\u0020', #THREE-PER-EM SPACE (thick space)
-        '\u2005': '\u0020', #FOUR-PER-EM SPACE (mid space)
-        '\u2007': '\u0020', #FIGURE SPACE
-        '\u3000': '\u0020', #IDEOGRAPHIC SPACE
+        '\u1680': '\u200c',  # OGHAM SPACE
+        '\u180E': '\u200c',  # MONGOLIAN VOWEL SEPARATOR
+        '\u2006': '\u200c',  # SIX-PER-EM SPACE
+        '\u2008': '\u200c',  # PUNCTUATION SPACE
+        '\u2009': '\u200c',  # THIN SPACE
+        '\u200A': '\u200c',  # HAIR SPACE
+        '\u200B': '\u200c',  # ZERO WIDTH SPACE
+        '\u202F': '\u200c',  # NARROW NO-BREAK SPACE
+        '\u205F': '\u200c',  # MEDIUM MATHEMATICAL SPACE
+        '\uFEFF': '\u200c',  # ZERO WIDTH NO-BREAK SPACE
+        # spaces
+        '\u00A0': '\u0020',  # nobreak space
+        '\u2000': '\u0020',  # EN QUAD
+        '\u2001': '\u0020',  # EM QUAD
+        '\u2002': '\u0020',  # EN SPACE (nut)
+        '\u2003': '\u0020',  # EM SPACE (mutton)
+        '\u2004': '\u0020',  # THREE-PER-EM SPACE (thick space)
+        '\u2005': '\u0020',  # FOUR-PER-EM SPACE (mid space)
+        '\u2007': '\u0020',  # FIGURE SPACE
+        '\u3000': '\u0020',  # IDEOGRAPHIC SPACE
 
-        #emoji
+        # emoji
         '\uF600': '',  # grinning face
         '\uF603': '',  # grinning face with big eyes
         '\uF604': '',  # grinning face with smiling eyes
@@ -251,11 +262,10 @@ def arToPersianChar(userInput):
         '\uF62A': '',  # sleepy face
         '\uF924': '',  # drooling face
         '\uF634': '',  # sleeping face
-        '\uF637': '',  #face with medical mask
+        '\uF637': '',  # face with medical mask
         '\uF912': '',  # face with thermometer
-        '\uF915': '',  #face with head-bandage
+        '\uF915': '',  # face with head-bandage
         '\uF922': '',  # nauseated face
-
 
     }
     return multiple_replace(dic, userInput)
@@ -329,7 +339,10 @@ except (OSError, IOError) as e:
 
         normolized_news = clean_all(news)
 
-        splitednews = normolized_news.split()
+        my_normalizer = Normalizer()
+        parsivar_normalized = my_normalizer.normalize(normolized_news)
+
+        splitednews = parsivar_normalized.split()
 
         docs_dic[j] = splitednews.copy()
 
@@ -337,7 +350,6 @@ except (OSError, IOError) as e:
         for i in range(len(splitednews)):
             splitednews[i] = my_stemmer.convert_to_stem(splitednews[i]).split('&')[0]
         # print(splitednews)
-
 
         # print(normolized_news)
 
@@ -363,6 +375,10 @@ except (OSError, IOError) as e:
     pickle_out2 = open("doc.pickle", "wb")
     pickle.dump(docs_dic, pickle_out2)
     pickle_out2.close()
+
+    d2 = datetime.datetime.today()
+    print('Current date and time: ', d2)
+    print("difference", d2 - d)
 
 
 # freq_list = []
@@ -657,10 +673,13 @@ def search(page_num):
         sort = request.form['sort_options']
         print('sort : %s' % sort)
 
-
         # query = ''.join(c for c in query if not ud.category(c).startswith('P'))
 
-        normolized_query = clean_all(query)
+        normalized_query = clean_all(query)
+
+        my_normalizer = Normalizer()
+        parsivar_normalized = my_normalizer.normalize(normalized_query)
+
         # query_splitted = normolized_query.split()
         # rtp_query = ""
         # for q in query_splitted:
@@ -669,8 +688,8 @@ def search(page_num):
         #         rtp_query += " "
         # print(rtp_query)
 
-        print(normolized_query)
-        splited_query = normolized_query.split()
+        print(parsivar_normalized)
+        splited_query = parsivar_normalized.split()
         my_stemmer = FindStems()
         result = ""
         for i in range(len(splited_query)):
@@ -688,7 +707,8 @@ def search(page_num):
         page_len = last_page_len
 
     resp = make_response(
-        render_template('search.html', prequery=query ,page=page_num, listing=page_result(loc, highlights, page_num, 10),
+        render_template('search.html', prequery=query, page=page_num,
+                        listing=page_result(loc, highlights, page_num, 10),
                         total_pages=total_page_num, highlights=highlights,
                         len=page_len))
 

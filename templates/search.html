@@ -44,6 +44,7 @@
     </div>
 
     <div class="news" align="right" dir="rtl">
+        {%if listing[i][7] in highlights%}
         {%for word in highlights[listing[i][7]]%}
         {%if word.is_highlight%}
         <mark class="inline">{{word.word}}</mark>
@@ -51,6 +52,7 @@
         <p class="inline">{{word.word}}</p>
         {%endif%}
         {%endfor%}
+        {%endif%}
 
         <div class="continue"><a class="continue" href="/result/{{listing[i][7]}}">ادامه</a></div>
     </div>

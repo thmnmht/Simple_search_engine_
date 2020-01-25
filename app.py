@@ -9,15 +9,13 @@ import pickle
 import unicodedata as ud
 import copy
 from parsivar import FindStems
-import sys, os
 from parsivar import Normalizer
-
 import datetime
-
 import sys, os
 from collections import Counter
 import numpy as np
 import math
+# from collections import OrderedDict
 # from hazm import *
 
 app = Flask(__name__)
@@ -40,7 +38,7 @@ text_maker.strong_mark = " "
 wb = xlrd.open_workbook(loc)
 sheet = wb.sheet_by_index(0)
 N = 200
-K=10
+K = 10
 # N=sheet.nrows
 
 stop_words = ["در", "از", "این", "برای", "که", "و", "را", "با", "به", "است", "ها", "تا", "های", "کرد", "شد",
@@ -325,7 +323,8 @@ def st(pat, splited):
                 steammed += token + ' '
     return steammed
 
-def doc_freq(word , DF):
+
+def doc_freq(word, DF):
     c = 0
     try:
         c = DF[word]
@@ -394,13 +393,10 @@ except (OSError, IOError) as e:
             terms_dic[term].add(j, i)
             i += 1
 
-
-    DFf={}
-    total_vocab_size=len(terms_dic)
-    for term in terms_dic :
-        DFf[term]= len(terms_dic[term].index_dic)
-
-
+    DFf = {}
+    total_vocab_size = len(terms_dic)
+    for term in terms_dic:
+        DFf[term] = len(terms_dic[term].index_dic)
 
     doc = 0
 
@@ -410,7 +406,6 @@ except (OSError, IOError) as e:
 
         tokens = docs_dic[i]
 
-
         counter = Counter(tokens)
         print(counter)
         words_count = len(tokens)
@@ -418,19 +413,19 @@ except (OSError, IOError) as e:
 
         print("this the document number")
         print(i)
-        if words_count != 0 :
+        if words_count != 0:
             for token in terms_dic:
                 tf = counter[token] / words_count
-                df = doc_freq(token , DFf)
-                #we can now use diffrent formula for document term weight
-                idf = np.log((N + 1) / (df + 1))
+                df = doc_freq(token, DFf)
+                # we can now use different formula for document term weight
+                idf = np.log10((N + 1) / (df + 1))
                 tf_idf[doc, token] = tf * idf
         doc += 1
 
     Dtf_idf = np.zeros((N, total_vocab_size))
     for i in tf_idf:
         try:
-            ind = terms_dic.index(i[1])
+            ind = list(terms_dic.keys()).index(i[1])
             Dtf_idf[i[0]][ind] = tf_idf[i]
         except:
             pass
@@ -491,17 +486,19 @@ except (OSError, IOError) as e:
 #         print((terms_dic[t].index_dic[i]))
 
 def cosine_sim(a, b):
-    aa=np.linalg.norm(a)
-    bb=np.linalg.norm(b)
+    aa = np.linalg.norm(a)
+    bb = np.linalg.norm(b)
     cos_sim = 0
-    if aa != 0 and bb!=0:
-        cos_sim = np.dot(a, b)/(aa*bb)
+    if aa != 0 and bb != 0:
+        cos_sim = np.dot(a, b) / (aa * bb)
     return cos_sim
+
 
 def gen_vector(tokens):
     Q = np.zeros((len(terms_dic)))
 
     counter = Counter(tokens)
+    print("counter", counter)
     words_count = len(tokens)
 
     query_weights = {}
@@ -509,11 +506,11 @@ def gen_vector(tokens):
     for token in np.unique(tokens):
 
         tf = counter[token] / words_count
-        df = doc_freq(token , DFf)
-        idf = math.log((N + 1) / (df + 1))
+        df = doc_freq(token, DFf)
+        idf = math.log10((N + 1) / (df + 1))
 
         try:
-            ind = terms_dic.index(token)
+            ind = list(terms_dic.keys()).index(token)
             Q[ind] = tf * idf
         except:
             pass
@@ -522,8 +519,8 @@ def gen_vector(tokens):
 
 def cosine_similarity(k, query):
     print("Cosine Similarity")
-    tokens = (str(query))
-
+    # tokens = (str(query))
+    tokens = query
     print("\nQuery:", query)
     print("")
     print(tokens)
@@ -531,17 +528,21 @@ def cosine_similarity(k, query):
     d_cosines = []
 
     query_vector = gen_vector(tokens)
-
+    i = 0
+    zeros = []
     for d in Dtf_idf:
-        d_cosines.append(cosine_sim(query_vector, d))
-
+        cosine_s = cosine_sim(query_vector, d)
+        if cosine_s == 0:
+            zeros.append(i)
+        d_cosines.append(cosine_s)
+        i += 1
+    print("zeros ", zeros)
+    print("cosine ", d_cosines)
     out = np.array(d_cosines).argsort()[-k:][::-1]
+    out = [x + 1 for x in out if x not in zeros]
 
-    print(out)
+    print("out ", out)
     return out
-
-
-
 
 
 def page_result(add, highlights, page=1, number=10):
@@ -553,6 +554,8 @@ def page_result(add, highlights, page=1, number=10):
         if i in range(((page - 1) * number) + 1, page * number + 1):
             data.append(sheet.row_values(key) + [key])
         i += 1
+
+    # print("data ", data)
     return data
 
 
@@ -820,38 +823,44 @@ def search(page_num):
         print(parsivar_normalized)
         splited_query = parsivar_normalized.split()
         my_stemmer = FindStems()
-        result = ""
+        stemer_result = ""
         for i in range(len(splited_query)):
-            result += my_stemmer.convert_to_stem(splited_query[i]).split('&')[0] + " "
-        print(result)
+            stemer_result += my_stemmer.convert_to_stem(splited_query[i]).split('&')[0] + " "
+        print("stemer result: ", stemer_result)
 
-        expression, normalWords, notVocabs = query_processing(result)
+        expression, normalWords, notVocabs = query_processing(stemer_result)
         result, highlights = query_result(expression, normalWords, notVocabs)
         print(sort)
         if sort == "connection":
-            connectionreault= cosine_similarity(K,normolized_query)
+            connectionresult = cosine_similarity(K, stemer_result.split())
             print("cos res ")
-            print(connectionreault)
+            print(connectionresult)
 
             print("actual res ")
             print(result)
 
-            similarresult=[]
-            # result=sorted(result.items(), key=lambda kv: connectionreault[kv])
+            similarresult = []
+
             # TODO inja bayad result to bar hasb connection moratab beshe yeki dige ham inke in natije jadide neshon dade beshe
-            for did in connectionreault:
+            for did in connectionresult:
                 for didr in result:
-                    if did==didr:
+                    if did == didr:
                         similarresult.append(did)
             print("similarresult")
             print(similarresult)
-
-            result = sorted(result.items(), key=lambda pair: similarresult.index(pair[0]))
+            index_res_rest = [x for x in result if x not in similarresult]
+            con_res_rest = [x for x in connectionresult if x not in similarresult]
+            sorted_index_res = similarresult + index_res_rest
+            # result_similarity = OrderedDict(sorted(highlights.items(), key=lambda pair: for_highlight_sort.index(pair[0])))
             print("changed  res ")
-            print(result)
+            print(sorted_index_res)
 
+            total_res = sorted_index_res + con_res_rest
+            print("rs ", total_res)
+        else:
+            total_res = result
 
-        length = len(result)
+        length = len(total_res)
         total_page_num = int(length / 10) + 1
         last_page_len = length % 10
 
@@ -861,7 +870,7 @@ def search(page_num):
 
     resp = make_response(
         render_template('search.html', prequery=query, page=page_num,
-                        listing=page_result(loc, highlights, page_num, 10),
+                        listing=page_result(loc, total_res, page_num, 10),
                         total_pages=total_page_num, highlights=highlights,
                         len=page_len))
 

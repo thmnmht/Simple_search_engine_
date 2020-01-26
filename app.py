@@ -13,6 +13,7 @@ from parsivar import FindStems
 from parsivar import Normalizer
 import datetime
 import sys, os
+from os import listdir
 from collections import Counter
 import numpy as np
 import math
@@ -26,9 +27,15 @@ def getScriptPath():
     return os.path.dirname(os.path.realpath(sys.argv[0]))
 os.chdir(getScriptPath())
 
+
+
+
 mode = "csv"
 # mode="xlsx"
 if mode == "csv":
+    # filepaths = [f for f in listdir("./IR-project-data-phase-3-100k") if f.endswith('.csv')]
+    # loc = pd.concat(map(pd.read_csv, filepaths))
+    # print("df size",len(loc.index))
     loc = pd.read_csv("IR2.csv")
     # print(loc.head())
 else:
@@ -39,8 +46,8 @@ else:
     # sheet = wb.sheet_by_index(0)
     # N=sheet.nrows
 
-N= len(loc.index)
-# N = 200
+# N= len(loc.index)
+N = 200
 K = 10
 
 text_maker = html2text.HTML2Text()
@@ -413,19 +420,19 @@ except (OSError, IOError) as e:
     doc = 0
 
     tf_idf = {}
-
+    print("counter is running ")
     for i in range(1, N):
 
         tokens = docs_dic[i]
 
 
         counter = Counter(tokens)
-        print(counter)
+        # print(counter)
         words_count = len(tokens)
-        print(words_count)
+        # print(words_count)
 
-        print("this the document number")
-        print(i)
+        # print("this the document number")
+        # print(i)
         if words_count != 0 :
             for token in terms_dic:
                 tf = counter[token] / words_count

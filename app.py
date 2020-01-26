@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 from flask import Flask, render_template, request, make_response
 import xlrd
+import pandas as pd
 import html2text
 import re
 from Index import Index
@@ -15,7 +16,6 @@ import sys, os
 from collections import Counter
 import numpy as np
 import math
-# from collections import OrderedDict
 # from hazm import *
 
 app = Flask(__name__)
@@ -24,22 +24,29 @@ app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 def getScriptPath():
     return os.path.dirname(os.path.realpath(sys.argv[0]))
-
-
 os.chdir(getScriptPath())
 
-loc = 'IR.xlsx'
+mode = "csv"
+# mode="xlsx"
+if mode == "csv":
+    loc = pd.read_csv("IR2.csv")
+    # print(loc.head())
+else:
+    loc = pd.read_excel("IR.xlsx")
+    # print(loc.head())
+    # loc = 'IR.xlsx'
+    # wb = xlrd.open_workbook(loc)
+    # sheet = wb.sheet_by_index(0)
+    # N=sheet.nrows
+
+# N= len(loc.index)
+N = 200
+K = 10
 
 text_maker = html2text.HTML2Text()
 text_maker.ignore_links = True
 text_maker.ignore_images = True
 text_maker.strong_mark = " "
-
-wb = xlrd.open_workbook(loc)
-sheet = wb.sheet_by_index(0)
-N = 200
-K = 10
-# N=sheet.nrows
 
 stop_words = ["در", "از", "این", "برای", "که", "و", "را", "با", "به", "است", "ها", "تا", "های", "کرد", "شد",
               "شده"]
@@ -62,13 +69,12 @@ docs_dic = {}
 def clean_sentence(sentence):
     sentence = arToPersianChar(sentence)
     sentence = arToPersianNumb(sentence)
-    sentence = yeksansaz(sentence)
+    sentence=yeksansaz(sentence)
     return sentence
-
 
 def yeksansaz(userInput):
     dic = {
-        # chandshekliha
+        #chandshekliha
         'آيينه': 'آينه',
         'اطاق': 'اتاق',
         'اتمبيل': 'اتومبيل',
@@ -99,7 +105,7 @@ def yeksansaz(userInput):
         'كبّاده': 'كباده',
         'هيئت': 'هيأت',
         'زغال': 'ذغال',
-        # kalamat ekhtesari
+        #kalamat ekhtesari
         'هـ . ش .': 'هجری شمسی',
         'هـ . ق .': 'هجری قمری',
         'ق . م .': 'قبل از میلاد',
@@ -140,7 +146,6 @@ def yeksansaz(userInput):
 
     }
     return multiple_replace(dic, userInput)
-
 
 def arToPersianNumb(number):
     dic = {
@@ -190,7 +195,7 @@ def arToPersianChar(userInput):
         'أ': 'ا',
         'ؤ': 'و',
         'ء': 'ی',
-        # eerab
+        #eerab
         '\u064B': '',  # FATHATAN
         '\u064C': '',  # DAMMATAN
         '\u064D': '',  # KASRATAN
@@ -199,30 +204,30 @@ def arToPersianChar(userInput):
         '\u0650': '',  # KASRA
         '\u0651': '',  # SHADDA
         '\u0652': '',  # SUKUN
-        # halp space
+        #halp space
         # '\u200c': '',  #half space
-        '\u1680': '\u200c',  # OGHAM SPACE
-        '\u180E': '\u200c',  # MONGOLIAN VOWEL SEPARATOR
-        '\u2006': '\u200c',  # SIX-PER-EM SPACE
-        '\u2008': '\u200c',  # PUNCTUATION SPACE
-        '\u2009': '\u200c',  # THIN SPACE
-        '\u200A': '\u200c',  # HAIR SPACE
-        '\u200B': '\u200c',  # ZERO WIDTH SPACE
-        '\u202F': '\u200c',  # NARROW NO-BREAK SPACE
-        '\u205F': '\u200c',  # MEDIUM MATHEMATICAL SPACE
-        '\uFEFF': '\u200c',  # ZERO WIDTH NO-BREAK SPACE
-        # spaces
-        '\u00A0': '\u0020',  # nobreak space
-        '\u2000': '\u0020',  # EN QUAD
-        '\u2001': '\u0020',  # EM QUAD
-        '\u2002': '\u0020',  # EN SPACE (nut)
-        '\u2003': '\u0020',  # EM SPACE (mutton)
-        '\u2004': '\u0020',  # THREE-PER-EM SPACE (thick space)
-        '\u2005': '\u0020',  # FOUR-PER-EM SPACE (mid space)
-        '\u2007': '\u0020',  # FIGURE SPACE
-        '\u3000': '\u0020',  # IDEOGRAPHIC SPACE
+        '\u1680': '\u200c',  #OGHAM SPACE
+        '\u180E': '\u200c',  #MONGOLIAN VOWEL SEPARATOR
+        '\u2006': '\u200c',  #SIX-PER-EM SPACE
+        '\u2008': '\u200c',  #PUNCTUATION SPACE
+        '\u2009': '\u200c',  #THIN SPACE
+        '\u200A': '\u200c',  #HAIR SPACE
+        '\u200B': '\u200c',  #ZERO WIDTH SPACE
+        '\u202F': '\u200c',  #NARROW NO-BREAK SPACE
+        '\u205F': '\u200c',  #MEDIUM MATHEMATICAL SPACE
+        '\uFEFF': '\u200c',  #ZERO WIDTH NO-BREAK SPACE
+        #spaces
+        '\u00A0': '\u0020', #nobreak space
+        '\u2000': '\u0020', #EN QUAD
+        '\u2001': '\u0020', #EM QUAD
+        '\u2002': '\u0020', #EN SPACE (nut)
+        '\u2003': '\u0020', #EM SPACE (mutton)
+        '\u2004': '\u0020', #THREE-PER-EM SPACE (thick space)
+        '\u2005': '\u0020', #FOUR-PER-EM SPACE (mid space)
+        '\u2007': '\u0020', #FIGURE SPACE
+        '\u3000': '\u0020', #IDEOGRAPHIC SPACE
 
-        # emoji
+        #emoji
         '\uF600': '',  # grinning face
         '\uF603': '',  # grinning face with big eyes
         '\uF604': '',  # grinning face with smiling eyes
@@ -267,10 +272,11 @@ def arToPersianChar(userInput):
         '\uF62A': '',  # sleepy face
         '\uF924': '',  # drooling face
         '\uF634': '',  # sleeping face
-        '\uF637': '',  # face with medical mask
+        '\uF637': '',  #face with medical mask
         '\uF912': '',  # face with thermometer
-        '\uF915': '',  # face with head-bandage
+        '\uF915': '',  #face with head-bandage
         '\uF922': '',  # nauseated face
+
 
     }
     return multiple_replace(dic, userInput)
@@ -323,8 +329,7 @@ def st(pat, splited):
                 steammed += token + ' '
     return steammed
 
-
-def doc_freq(word, DF):
+def doc_freq(word , DF):
     c = 0
     try:
         c = DF[word]
@@ -334,6 +339,7 @@ def doc_freq(word, DF):
 
 
 try:
+
     pickle_in1 = open("dict.pickle", "rb")
     print("loading inverted index")
     terms_dic = pickle.load(pickle_in1)
@@ -356,7 +362,9 @@ except (OSError, IOError) as e:
 
     for j in range(1, N):
         empty_docs_dic[j] = []
-        news = sheet.cell_value(j, 5)
+        news = loc[['content']].iloc[[j]]
+        # news = sheet.cell_value(j, 5)
+
         news = text_maker.handle(news)
         clean_html(news)
         # remove persian punctuations
@@ -376,6 +384,7 @@ except (OSError, IOError) as e:
             splitednews[i] = my_stemmer.convert_to_stem(splitednews[i]).split('&')[0]
         # print(splitednews)
 
+
         # print(normolized_news)
 
         # splited = splitednews.copy()
@@ -393,10 +402,13 @@ except (OSError, IOError) as e:
             terms_dic[term].add(j, i)
             i += 1
 
-    DFf = {}
-    total_vocab_size = len(terms_dic)
-    for term in terms_dic:
-        DFf[term] = len(terms_dic[term].index_dic)
+
+    DFf={}
+    total_vocab_size=len(terms_dic)
+    for term in terms_dic :
+        DFf[term]= len(terms_dic[term].index_dic)
+
+
 
     doc = 0
 
@@ -406,6 +418,7 @@ except (OSError, IOError) as e:
 
         tokens = docs_dic[i]
 
+
         counter = Counter(tokens)
         print(counter)
         words_count = len(tokens)
@@ -413,7 +426,7 @@ except (OSError, IOError) as e:
 
         print("this the document number")
         print(i)
-        if words_count != 0:
+        if words_count != 0 :
             for token in terms_dic:
                 tf = counter[token] / words_count
                 df = doc_freq(token, DFf)
@@ -486,13 +499,12 @@ except (OSError, IOError) as e:
 #         print((terms_dic[t].index_dic[i]))
 
 def cosine_sim(a, b):
-    aa = np.linalg.norm(a)
-    bb = np.linalg.norm(b)
+    aa=np.linalg.norm(a)
+    bb=np.linalg.norm(b)
     cos_sim = 0
-    if aa != 0 and bb != 0:
-        cos_sim = np.dot(a, b) / (aa * bb)
+    if aa != 0 and bb!=0:
+        cos_sim = np.dot(a, b)/(aa*bb)
     return cos_sim
-
 
 def gen_vector(tokens):
     Q = np.zeros((len(terms_dic)))
@@ -545,17 +557,22 @@ def cosine_similarity(k, query):
     return out
 
 
+
+
+
 def page_result(add, highlights, page=1, number=10):
     data = []
-    wb = xlrd.open_workbook(add)
-    sheet = wb.sheet_by_index(0)
+    # wb = xlrd.open_workbook(add)
+    # sheet = wb.sheet_by_index(0)
     i = 1
     for key in highlights:
         if i in range(((page - 1) * number) + 1, page * number + 1):
-            data.append(sheet.row_values(key) + [key])
+            # data.append(sheet.row_values(key) + [key])
+            a = loc.iloc[[key]].to_numpy()[0]
+            data.append(np.append(a, [key]))
         i += 1
-
-    # print("data ", data)
+    print("dataf")
+    print(data[0][0])
     return data
 
 
@@ -805,6 +822,7 @@ def search(page_num):
         sort = request.form['sort_options']
         print('sort : %s' % sort)
 
+
         # query = ''.join(c for c in query if not ud.category(c).startswith('P'))
 
         normalized_query = clean_all(query)
@@ -844,7 +862,7 @@ def search(page_num):
             # TODO inja bayad result to bar hasb connection moratab beshe yeki dige ham inke in natije jadide neshon dade beshe
             for did in connectionresult:
                 for didr in result:
-                    if did == didr:
+                    if did==didr:
                         similarresult.append(did)
             print("similarresult")
             print(similarresult)
@@ -864,6 +882,8 @@ def search(page_num):
         total_page_num = int(length / 10) + 1
         last_page_len = length % 10
 
+
+
     page_len = 10
     if page_num == total_page_num:
         page_len = last_page_len
@@ -880,7 +900,7 @@ def search(page_num):
 @app.route('/result/<int:news>', methods=['POST', 'GET'])
 def shownews(news):
     resp = make_response(
-        render_template('result.html', listing=sheet.row_values(news))
+        render_template('result.html', listing=loc.iloc[[news]].to_numpy()[0])
     )
     return resp
 

@@ -32,7 +32,7 @@
 <div class="blog-card">
     <div class="summery-picture">
         <div class="meta">
-            <img class="photo" src={{listing[i][6]}} height="150px" width="250px"/>
+            <img class="photo" src={{listing[i][9]}} height="150px" width="250px"/>
         </div>
         <div class="description">
             <h1>{{listing[i][1]}}</h1>
@@ -44,17 +44,15 @@
     </div>
 
     <div class="news" align="right" dir="rtl">
-        {%if listing[i][7] in highlights%}
-        {%for word in highlights[listing[i][7]]%}
+        {%for word in highlights[listing[i][10]]%}
         {%if word.is_highlight%}
         <mark class="inline">{{word.word}}</mark>
         {%else%}
         <p class="inline">{{word.word}}</p>
         {%endif%}
         {%endfor%}
-        {%endif%}
 
-        <div class="continue"><a class="continue" href="/result/{{listing[i][7]}}">ادامه</a></div>
+        <div class="continue"><a class="continue" href="/result/{{listing[i][10]}}">ادامه</a></div>
     </div>
 
 

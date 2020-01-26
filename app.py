@@ -17,6 +17,7 @@ from os import listdir
 from collections import Counter
 import numpy as np
 import math
+
 # from hazm import *
 
 app = Flask(__name__)
@@ -25,10 +26,9 @@ app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 def getScriptPath():
     return os.path.dirname(os.path.realpath(sys.argv[0]))
+
+
 os.chdir(getScriptPath())
-
-
-
 
 mode = "csv"
 # mode="xlsx"
@@ -76,12 +76,13 @@ docs_dic = {}
 def clean_sentence(sentence):
     sentence = arToPersianChar(sentence)
     sentence = arToPersianNumb(sentence)
-    sentence=yeksansaz(sentence)
+    sentence = yeksansaz(sentence)
     return sentence
+
 
 def yeksansaz(userInput):
     dic = {
-        #chandshekliha
+        # chandshekliha
         'آيينه': 'آينه',
         'اطاق': 'اتاق',
         'اتمبيل': 'اتومبيل',
@@ -112,7 +113,7 @@ def yeksansaz(userInput):
         'كبّاده': 'كباده',
         'هيئت': 'هيأت',
         'زغال': 'ذغال',
-        #kalamat ekhtesari
+        # kalamat ekhtesari
         'هـ . ش .': 'هجری شمسی',
         'هـ . ق .': 'هجری قمری',
         'ق . م .': 'قبل از میلاد',
@@ -153,6 +154,7 @@ def yeksansaz(userInput):
 
     }
     return multiple_replace(dic, userInput)
+
 
 def arToPersianNumb(number):
     dic = {
@@ -202,7 +204,7 @@ def arToPersianChar(userInput):
         'أ': 'ا',
         'ؤ': 'و',
         'ء': 'ی',
-        #eerab
+        # eerab
         '\u064B': '',  # FATHATAN
         '\u064C': '',  # DAMMATAN
         '\u064D': '',  # KASRATAN
@@ -211,30 +213,30 @@ def arToPersianChar(userInput):
         '\u0650': '',  # KASRA
         '\u0651': '',  # SHADDA
         '\u0652': '',  # SUKUN
-        #halp space
+        # halp space
         # '\u200c': '',  #half space
-        '\u1680': '\u200c',  #OGHAM SPACE
-        '\u180E': '\u200c',  #MONGOLIAN VOWEL SEPARATOR
-        '\u2006': '\u200c',  #SIX-PER-EM SPACE
-        '\u2008': '\u200c',  #PUNCTUATION SPACE
-        '\u2009': '\u200c',  #THIN SPACE
-        '\u200A': '\u200c',  #HAIR SPACE
-        '\u200B': '\u200c',  #ZERO WIDTH SPACE
-        '\u202F': '\u200c',  #NARROW NO-BREAK SPACE
-        '\u205F': '\u200c',  #MEDIUM MATHEMATICAL SPACE
-        '\uFEFF': '\u200c',  #ZERO WIDTH NO-BREAK SPACE
-        #spaces
-        '\u00A0': '\u0020', #nobreak space
-        '\u2000': '\u0020', #EN QUAD
-        '\u2001': '\u0020', #EM QUAD
-        '\u2002': '\u0020', #EN SPACE (nut)
-        '\u2003': '\u0020', #EM SPACE (mutton)
-        '\u2004': '\u0020', #THREE-PER-EM SPACE (thick space)
-        '\u2005': '\u0020', #FOUR-PER-EM SPACE (mid space)
-        '\u2007': '\u0020', #FIGURE SPACE
-        '\u3000': '\u0020', #IDEOGRAPHIC SPACE
+        '\u1680': '\u200c',  # OGHAM SPACE
+        '\u180E': '\u200c',  # MONGOLIAN VOWEL SEPARATOR
+        '\u2006': '\u200c',  # SIX-PER-EM SPACE
+        '\u2008': '\u200c',  # PUNCTUATION SPACE
+        '\u2009': '\u200c',  # THIN SPACE
+        '\u200A': '\u200c',  # HAIR SPACE
+        '\u200B': '\u200c',  # ZERO WIDTH SPACE
+        '\u202F': '\u200c',  # NARROW NO-BREAK SPACE
+        '\u205F': '\u200c',  # MEDIUM MATHEMATICAL SPACE
+        '\uFEFF': '\u200c',  # ZERO WIDTH NO-BREAK SPACE
+        # spaces
+        '\u00A0': '\u0020',  # nobreak space
+        '\u2000': '\u0020',  # EN QUAD
+        '\u2001': '\u0020',  # EM QUAD
+        '\u2002': '\u0020',  # EN SPACE (nut)
+        '\u2003': '\u0020',  # EM SPACE (mutton)
+        '\u2004': '\u0020',  # THREE-PER-EM SPACE (thick space)
+        '\u2005': '\u0020',  # FOUR-PER-EM SPACE (mid space)
+        '\u2007': '\u0020',  # FIGURE SPACE
+        '\u3000': '\u0020',  # IDEOGRAPHIC SPACE
 
-        #emoji
+        # emoji
         '\uF600': '',  # grinning face
         '\uF603': '',  # grinning face with big eyes
         '\uF604': '',  # grinning face with smiling eyes
@@ -279,11 +281,10 @@ def arToPersianChar(userInput):
         '\uF62A': '',  # sleepy face
         '\uF924': '',  # drooling face
         '\uF634': '',  # sleeping face
-        '\uF637': '',  #face with medical mask
+        '\uF637': '',  # face with medical mask
         '\uF912': '',  # face with thermometer
-        '\uF915': '',  #face with head-bandage
+        '\uF915': '',  # face with head-bandage
         '\uF922': '',  # nauseated face
-
 
     }
     return multiple_replace(dic, userInput)
@@ -336,7 +337,8 @@ def st(pat, splited):
                 steammed += token + ' '
     return steammed
 
-def doc_freq(word , DF):
+
+def doc_freq(word, DF):
     c = 0
     try:
         c = DF[word]
@@ -369,7 +371,7 @@ except (OSError, IOError) as e:
 
     for j in range(1, N):
         empty_docs_dic[j] = []
-        news = loc.at[j,'content']
+        news = loc.at[j, 'content']
         # news = sheet.cell_value(j, 5)
 
         news = text_maker.handle(news)
@@ -391,7 +393,6 @@ except (OSError, IOError) as e:
             splitednews[i] = my_stemmer.convert_to_stem(splitednews[i]).split('&')[0]
         # print(splitednews)
 
-
         # print(normolized_news)
 
         # splited = splitednews.copy()
@@ -409,13 +410,10 @@ except (OSError, IOError) as e:
             terms_dic[term].add(j, i)
             i += 1
 
-
-    DFf={}
-    total_vocab_size=len(terms_dic)
-    for term in terms_dic :
-        DFf[term]= len(terms_dic[term].index_dic)
-
-
+    DFf = {}
+    total_vocab_size = len(terms_dic)
+    for term in terms_dic:
+        DFf[term] = len(terms_dic[term].index_dic)
 
     doc = 0
 
@@ -425,7 +423,6 @@ except (OSError, IOError) as e:
 
         tokens = docs_dic[i]
 
-
         counter = Counter(tokens)
         # print(counter)
         words_count = len(tokens)
@@ -433,7 +430,7 @@ except (OSError, IOError) as e:
 
         # print("this the document number")
         # print(i)
-        if words_count != 0 :
+        if words_count != 0:
             for token in terms_dic:
                 tf = counter[token] / words_count
                 df = doc_freq(token, DFf)
@@ -506,12 +503,13 @@ except (OSError, IOError) as e:
 #         print((terms_dic[t].index_dic[i]))
 
 def cosine_sim(a, b):
-    aa=np.linalg.norm(a)
-    bb=np.linalg.norm(b)
+    aa = np.linalg.norm(a)
+    bb = np.linalg.norm(b)
     cos_sim = 0
-    if aa != 0 and bb!=0:
-        cos_sim = np.dot(a, b)/(aa*bb)
+    if aa != 0 and bb != 0:
+        cos_sim = np.dot(a, b) / (aa * bb)
     return cos_sim
+
 
 def gen_vector(tokens):
     Q = np.zeros((len(terms_dic)))
@@ -562,9 +560,6 @@ def cosine_similarity(k, query):
 
     print("out ", out)
     return out
-
-
-
 
 
 def page_result(add, highlights, page=1, number=10):
@@ -821,14 +816,13 @@ def hello_world():
 
 @app.route('/search/<int:page_num>', methods=['POST', 'GET'])
 def search(page_num):
-    global highlights, total_page_num, last_page_len
+    global highlights, total_page_num, last_page_len, query, total_res
     if page_num is None:
         page_num = 1
     if request.method == 'POST':
         query = request.form['query']
         sort = request.form['sort_options']
         print('sort : %s' % sort)
-
 
         # query = ''.join(c for c in query if not ud.category(c).startswith('P'))
 
@@ -869,7 +863,7 @@ def search(page_num):
             # TODO inja bayad result to bar hasb connection moratab beshe yeki dige ham inke in natije jadide neshon dade beshe
             for did in connectionresult:
                 for didr in result:
-                    if did==didr:
+                    if did == didr:
                         similarresult.append(did)
             print("similarresult")
             print(similarresult)
@@ -888,8 +882,6 @@ def search(page_num):
         length = len(total_res)
         total_page_num = int(length / 10) + 1
         last_page_len = length % 10
-
-
 
     page_len = 10
     if page_num == total_page_num:

@@ -39,8 +39,8 @@ else:
     # sheet = wb.sheet_by_index(0)
     # N=sheet.nrows
 
-# N= len(loc.index)
-N = 200
+N= len(loc.index)
+# N = 200
 K = 10
 
 text_maker = html2text.HTML2Text()
@@ -362,7 +362,7 @@ except (OSError, IOError) as e:
 
     for j in range(1, N):
         empty_docs_dic[j] = []
-        news = loc[['content']].iloc[[j]]
+        news = loc.at[j,'content']
         # news = sheet.cell_value(j, 5)
 
         news = text_maker.handle(news)
